@@ -27,7 +27,7 @@ async def verifyOtp(param:VerifyOtpParam,service:AuthService=Depends()):
 @router.post('/createProfile',response_model=SuccessResponse)
 async def createProfile(param:CreateProfileParam,service:AuthService=Depends(),userId:UUID=Depends(get_current_user_id)):
 
-    result= await service.create_profile(param=param)
+    result= await service.create_profile(param=param,userId=userId)
     return SuccessResponse(
         data=result )
 
