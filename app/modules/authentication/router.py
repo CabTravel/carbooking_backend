@@ -15,7 +15,7 @@ router=APIRouter(prefix='/auth')
 @router.post('/generateOtp',response_model=SuccessResponse)
 async def generateOtp(request:GenerateOtpRequest,service:AuthService=Depends()):
     result= await service.generate_otp(param=request )
-    return SuccessResponse(message='Otp generated successfully check message')
+    return SuccessResponse(message='Otp generated successfully check message',data=result)
 
 @router.post('/verifyOtp')
 async def verifyOtp(param:VerifyOtpParam,service:AuthService=Depends()):

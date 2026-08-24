@@ -8,7 +8,7 @@ from uuid import UUID
 
 from app.core.exceptions.exceptions import AppException
 
-from app.core.redis.redis import redist_client
+from app.core.services.redis.redis import redist_client
 from  app.modules.authentication.schemas import VerifyOtpParam,VerifyOtpOut,CreateProfileParam,UpdateProfileParam,GenerateOtpRequest
 from app.modules.authentication.models import User,Profile
 
@@ -30,6 +30,9 @@ class AuthRepository:
 
             redist_client.set(
                 key, my_otp, ex=300 )
+
+
+            return f'{my_otp}909090 saed valye'
             
         except Exception as e:
             raise AppException(status_code=500, message='Failed to generate otp')
@@ -38,7 +41,7 @@ class AuthRepository:
 
         try:      
             key=f"otp:{param.phoneNumber}"
-            value=redist_client.get(key)
+            value=await redist_client.get(key)
             if(value==None):
                 raise AppException(
                     message='Otp Expired',
@@ -61,12 +64,12 @@ class AuthRepository:
 
             else:
                 raise AppException(
-                    message='Invalid Otp',
+                    message='Invalid Otp ',
                     status_code=status.HTTP_400_BAD_REQUEST
                 ) 
                 
         except Exception as e:
-            raise AppException(status_code=500, message='Failed to generate otp')
+            raise AppException(status_code=500, message=f'Failed to verify otp {str(e)}')
 
     async def get_user_by_phone(self,phoneNumber:str)-> User|None:
 

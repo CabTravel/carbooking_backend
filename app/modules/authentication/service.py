@@ -3,7 +3,7 @@ from app.modules.authentication. repository import AuthRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.authentication.schemas import GenerateOtpRequest,VerifyOtpParam,CreateProfileParam,UpdateProfileParam
 from uuid import UUID
-from app.modules.authentication.schemas import Profile
+from app.modules.authentication.schemas import Profile,GenerateOtpResponse
 
 from fastapi import Depends
 
@@ -15,11 +15,11 @@ class AuthService:
     async def generate_otp(self, param:GenerateOtpRequest):
 
         result=await self.repository.generate_otp(param=param)
-        return result
+        return GenerateOtpResponse(phoneNumber=result)
 
     async def verify_otp(self, param:VerifyOtpParam):
 
-        result=await self.repository.generate_otp(param=param)
+        result=await self.repository.verify_otp(param=param)
         return result    
     
     async def create_profile(self, param:CreateProfileParam):
