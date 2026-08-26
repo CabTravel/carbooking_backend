@@ -41,9 +41,9 @@ class AuthRepository:
             my_otp=generate_otp()
             key=f"otp:{param.phoneNumber}"
 
-            # await redist_client.set(
-            #     key, my_otp, ex=300 )
-            # value=await redist_client.get(key)
+            await redist_client.set(
+                key, my_otp, ex=300 )
+            value=await redist_client.get(key)
             # await self.sms_provider.send_sms(phone_number=param.phoneNumber,message=f"your carbooking otp is {my_otp}")
             return {
                 "otp":my_otp,
@@ -57,7 +57,7 @@ class AuthRepository:
 
         try:      
             key=f"otp:{param.phoneNumber}"
-            # value=await redist_client.get(key)
+            value=await redist_client.get(key)
             value=param.otp
             if(value==None):
                 raise AppException(
