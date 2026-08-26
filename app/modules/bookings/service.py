@@ -7,7 +7,8 @@ from app.modules.bookings.schemas import OneBookingOut,BookingsListOut,CreateBoo
 from fastapi import Depends
 class BookingService:
 
-    def __int__(self,repository:BookingRepository=Depends()):
+
+    def __init__ (self,repository:BookingRepository=Depends()):
         self.repository=repository
 
 

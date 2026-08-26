@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field,ConfigDict
 from uuid import UUID
 
 class BookingResponseSchema(BaseModel):
@@ -20,8 +20,7 @@ class BookingResponseSchema(BaseModel):
     createDate:int
     updateDate:int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class CreateBookingParam(BaseModel):
 
@@ -38,13 +37,12 @@ class CreateBookingParam(BaseModel):
     carLocalId: str | None = None
     localCreateDate: int
     localUpdateDate: int
-    createDate:int
-    updateDate:int
+
 
 
 class UpdateBookingParam(BaseModel):
 
-    id: UUID
+    id: str
     localId: str
     carName: str
     carNumber: str
@@ -60,7 +58,7 @@ class UpdateBookingParam(BaseModel):
 
 class PatchBookingParam(BaseModel):
 
-    id: UUID
+    id: str
     localId: str 
     carName: str | None = None
     carNumber: str | None = None

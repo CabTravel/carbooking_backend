@@ -10,7 +10,8 @@ from fastapi import Depends
 from app.database.session import get_db
 
 class ExpenseRepository:
-    def __init__(self,db:AsyncSession=Depends(get_db)):
+   
+    def __init__ (self,db:AsyncSession=Depends(get_db)):
         self.db=db
 
     async def get_expense_by_id(self,expense_id:UUID,userId:UUID) -> ExpenseModel:
@@ -38,8 +39,8 @@ class ExpenseRepository:
             localUpdateDate=param.localUpdateDate )
 
         self.db.add(expense)
-        self.db.commit()
-        self.db.refresh(expense)
+        await self.db.commit()
+        await self.db.refresh(expense)
 
         return expense
 
@@ -55,12 +56,12 @@ class ExpenseRepository:
         expense.notes=param.notes
         expense.localUpdateDate=param.localUpdateDate
 
-        self.db.commit()
-        self.db.refresh(expense)
+        await self.db.commit()
+        await self.db.refresh(expense)
 
         return expense
 
-    async def update_expense(self,param:ExpenseUpdateParam,userId:UUID)-> ExpenseModel:
+    async def patch_expense(self,param:ExpenseUpdateParam,userId:UUID)-> ExpenseModel:
         expense=await self.get_expense_by_id(expense_id=param.id,userId=userId) 
 
         if expense is None:
@@ -69,15 +70,16 @@ class ExpenseRepository:
         if expense.localId!=param.localId:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='No expense entry exists with id')
 
-        data=param.model_dump()
+        data=param.model_dump(exclude_unset=True)
 
-        for field,value in data.values():
+
+        for field,value in data.items():
             setattr(expense,field,value)
 
     
 
-        self.db.commit()
-        self.db.refresh(expense)
+        await self.db.commit()
+        await self.db.refresh(expense)
 
         return expense
 

@@ -18,13 +18,13 @@ class RemoteDbTableMixin:
         default=text("gen_random_uuid()")
     )
 
-    create_date = Column(
+    createDate = Column(
         BigInteger,
         default=current_time_millis,
         nullable=False,
     )
 
-    update_date = Column(
+    updateDate = Column(
         BigInteger,
         default=current_time_millis,
         onupdate=current_time_millis,

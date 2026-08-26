@@ -4,7 +4,7 @@ from fastapi import Depends
 from uuid import UUID
 from app.modules.expenses. schemas import OneExpenseOut,ExpensesListOut,ExpenseCreateParam,ExpenseUpdateParam,ExpensePatchUpdateParam
 class ExpenseService:
-    def __int__(self,repository:ExpenseRepository=Depends()):
+    def __init__(self,repository:ExpenseRepository=Depends()):
         self.repository=repository
 
     async def get_expense_by_id( self,expenseId:UUID,userId:UUID):
@@ -20,16 +20,16 @@ class ExpenseService:
         result=await self.repository.create_expense(param=param,userId=userId)
         return OneExpenseOut(expense=result)
 
-    async def update_expense(self,param:ExpenseUpdateParam):
-        result=await self.repository.update_expense(param=param)
+    async def update_expense(self,param:ExpenseUpdateParam,userId:UUID):
+        result=await self.repository.update_expense(param=param,userId=userId)
         return OneExpenseOut(expense=result)
 
-    async def patch_expense(self,param:ExpensePatchUpdateParam):
-        result=await self.repository. patch_expense(param= param)
+    async def patch_expense(self,param:ExpensePatchUpdateParam,userId:UUID):
+        result=await self.repository.patch_expense(param=param,userId=userId)
         return OneExpenseOut(expense=result)
 
-    async def delete_expense(self,expense_id:UUID):
-        result=await self.repository.delete_expense(id=expense_id)
+    async def delete_expense(self,expense_id:UUID,userId:UUID):
+        result=await self.repository.delete_expense(id=expense_id,userId=userId)
         return OneExpenseOut(expense=result) 
     
     

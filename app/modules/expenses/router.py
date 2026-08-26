@@ -8,32 +8,32 @@ from app.modules.expenses.schemas import ExpenseCreateParam,ExpenseUpdateParam,E
 router=APIRouter(prefix='/expenses')
 
 
-@router.get('/expensebyid',response_model=SuccessResponse)
-async def get_expense_by_id(id:str,service:ExpenseService=Depends(),usreId:UUID=Depends(get_current_user_id)):
-    result=await service.get_expense_by_id(expenseId=id)
+@router.get('/{id}',response_model=SuccessResponse)
+async def get_expense_by_id(id:str,service:ExpenseService=Depends(),userId:UUID=Depends(get_current_user_id)):
+    result=await service.get_expense_by_id(expenseId=UUID(id),userId=userId)
     return SuccessResponse(data=result)
 
-@router.get('/myexpenses',response_model=SuccessResponse)
+@router.get('',response_model=SuccessResponse)
 async def get_my_expenses( service:ExpenseService=Depends() ,userId:UUID=Depends(get_current_user_id)):
     result=await service.get_expenses_by_userid(userId=userId)
     return SuccessResponse(data=result)
 
-@router.post('/createExpense',response_model=SuccessResponse)
+@router.post('',response_model=SuccessResponse)
 async def create_expense( param:ExpenseCreateParam, service:ExpenseService=Depends(),userId:UUID=Depends(get_current_user_id)):
-    result=await service.create_expense(param=param)
+    result=await service.create_expense(param=param,userId=userId)
     return SuccessResponse(data= result)
 
-@router.put('/updateexpense')
+@router.put('')
 async def update_expense(param:ExpenseUpdateParam,service:ExpenseService=Depends(),userId:UUID=Depends(get_current_user_id)):
-    result=await service.update_expense(param=param)
+    result=await service.update_expense(param=param,userId=userId)
     return SuccessResponse(data=result)
 
-@router.patch('/patchexpense',response_model=SuccessResponse)
+@router.patch('',response_model=SuccessResponse)
 async def patch_expense(param:ExpensePatchUpdateParam,service:ExpenseService=Depends(),userId:UUID=Depends(get_current_user_id)):
-    result=await service.patch_expense(param=param)
+    result=await service.patch_expense(param=param,userId=userId)
     return SuccessResponse(data=result)
 
-@router.delete('/delele_expense',response_model=SuccessResponse)
+@router.delete('/{id}',response_model=SuccessResponse)
 async def delete_expense(id:str,service:ExpenseService=Depends(),userId:UUID=Depends(get_current_user_id)):
-    result= await service.delete_expense(expense_id=id)
+    result= await service.delete_expense(expense_id=UUID(id),userId=userId)
     return SuccessResponse(data=result)

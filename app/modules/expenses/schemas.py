@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field,ConfigDict
 from uuid import UUID
 
 
@@ -14,8 +14,7 @@ class ExpenseResponseSchema(BaseModel):
     localCreateDate: int
     localUpdateDate: int
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExpenseCreateParam(BaseModel):
@@ -29,7 +28,7 @@ class ExpenseCreateParam(BaseModel):
 
 
 class ExpenseUpdateParam(BaseModel):
-    id: UUID
+    id: str
     localId: str
     amount: float
     category:str
@@ -40,7 +39,7 @@ class ExpenseUpdateParam(BaseModel):
 
 class ExpensePatchUpdateParam(BaseModel):
 
-    id: UUID
+    id: str
     localId: str | None = None
     amount: float | None = None
     category:str|None=None

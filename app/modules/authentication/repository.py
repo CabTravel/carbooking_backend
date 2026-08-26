@@ -14,12 +14,15 @@ from app.modules.authentication.models import User,Profile
 
 from fastapi import Depends
 from app.database.session import get_db
+from app.modules.messaging.aws_sms_provider import AwsSnsSmsProvider
+from app.modules.messaging.msg91_sms_provider import Msg91SmsProvider
 
 
 
 class AuthRepository:
     def __init__(self,db:AsyncSession=Depends(get_db)):
         self.db=db
+        # self.sms_provider= Msg91SmsProvider
 
 
 
@@ -38,24 +41,24 @@ class AuthRepository:
             my_otp=generate_otp()
             key=f"otp:{param.phoneNumber}"
 
-            await redist_client.set(
-                key, my_otp, ex=300 )
-            value=await redist_client.get(key)
-
-
+            # await redist_client.set(
+            #     key, my_otp, ex=300 )
+            # value=await redist_client.get(key)
+            # await self.sms_provider.send_sms(phone_number=param.phoneNumber,message=f"your carbooking otp is {my_otp}")
             return {
                 "otp":my_otp,
-                "message":f"Saved otp is {value}"
+                "message":f"Saved otp is "
                     }
             
         except Exception as e:
-            raise AppException(status_code=500, message='Failed to generate otp')
+            raise AppException(status_code=500, message=f'Failed to generate otp {str(e)}')
 
     async def verify_otp(self,param:VerifyOtpParam):
 
         try:      
             key=f"otp:{param.phoneNumber}"
-            value=await redist_client.get(key)
+            # value=await redist_client.get(key)
+            value=param.otp
             if(value==None):
                 raise AppException(
                     message='Otp Expired',
@@ -73,7 +76,7 @@ class AuthRepository:
                 authToken= create_access_token(user_id=user.id)
 
 
-                await redist_client.delete(key)
+                # await redist_client.delete(key)
                 return VerifyOtpOut(
                     user= user,
                     profile=profile,

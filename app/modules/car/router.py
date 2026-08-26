@@ -11,34 +11,34 @@ router=APIRouter(prefix='/car')
 
 
 
-@router.get('/carbyid',response_model=SuccessResponse)
-async def get_car_by_id(carId:str, service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
-    result=await  service.get_car_by_id(car_id=UUID(carId))
+@router.get('/{id}',response_model=SuccessResponse)
+async def get_car_by_id(id:str, service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
+    result=await  service.get_car_by_id(car_id=UUID(id),userId=userId)
     return SuccessResponse(data=result)
 
-@router.get('/carbyuserid',response_model=SuccessResponse)
+@router.get('',response_model=SuccessResponse)
 async def get_car_by_userid(service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
     result=await service.get_cars_of_user(userId=userId)
     return SuccessResponse(data=result)
 
-@router.post('/createcar',response_model=SuccessResponse)
+@router.post('',response_model=SuccessResponse)
 async def create_car(param:CreateCarParam,service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
-    result= await service.create_car(param=param)
+    result= await service.create_car(param=param,userId=userId)
     return SuccessResponse(data=result)
 
-@router.put('/updatecar',response_model=SuccessResponse)
+@router.put('',response_model=SuccessResponse)
 async def update_car(param:UpdateCarParam,service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
-    result=await service.update_car(param=param)
+    result=await service.update_car(param=param,userId=userId)
     return SuccessResponse(data=result)
 
-@router.patch('/patch',response_model=SuccessResponse)
+@router.patch('',response_model=SuccessResponse)
 async def update_car_patch(param:PatchCarParam,service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
-    result=await service.patch_car(param=param)
+    result=await service.patch_car(param=param,userId=userId)
     return SuccessResponse(data=result)
 
-@router.delete('/deletecar',response_model=SuccessResponse)
-async def delete_car(car_id:str,service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
-    result=await service.delete_car(carId=car_id)
+@router.delete('/{id}',response_model=SuccessResponse)
+async def delete_car(id:str,service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
+    result=await service.delete_car(carId=id,userId=userId)
     return SuccessResponse(data=result)
 
 

@@ -7,7 +7,7 @@ from app.database.session import get_db
 from uuid import UUID
 
 class CarRepository:
-    def __int__(self,db:AsyncSession=Depends(get_db)):
+    def __init__(self,db:AsyncSession=Depends(get_db)):
         self.db=db
 
     async def get_car_by_id(self,carId:UUID) -> Car:
@@ -26,12 +26,14 @@ class CarRepository:
 
     async def create_car(self,param:CreateCarParam,userId:UUID)-> Car: 
         car= Car(
+           
             localId=param.localId,
             carNumber= param.carNumber,
             carBrandName=param.carBrandName,
             isAc=param.isAc,
             tripType=param.tripType,
             seats=param.seats,
+            userId=userId,
 
             driverName=param.driverName,
             driverphoneNumber=param.driverphoneNumber,
@@ -57,13 +59,15 @@ class CarRepository:
         return car
 
 
-    async def update_car(self,param:UpdateCarParam):
+    async def update_car(self,param:UpdateCarParam,userId=UUID):
 
         car=await self.get_car_by_id(carId=param.id)
 
         if car is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='No car exist with id')
 
+        if car.userId!=userId:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="not autorised to edit")
    
         car.carNumber= param.carNumber
         car.carBrandName=param.carBrandName
@@ -97,9 +101,15 @@ class CarRepository:
 
         car= await self.get_car_by_id(carId=param.id)
 
-        data= param.model_dump()
+        if car is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='No car exist with id')
 
-        for field,value in data.values():
+        if car.userId!=userId:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="not autorised to edit")
+   
+        data= param.model_dump(exclude_unset=True)
+
+        for field, value in data.items():
             setattr(car,field,value)
 
         await self.db.commit()

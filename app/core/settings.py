@@ -1,28 +1,39 @@
 
 from pydantic_settings import BaseSettings
+from urllib.parse import quote_plus
 
 class Settings(BaseSettings):
     app_name:str='TravelBook'
 
-    database_hostname:str='localhost'
-    database_port: int= 5432
-    database_usename:str='postgres'
-    database_password:str='1234'
-    database_name:str='travelBook'
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    REDIS_DB: int = 0
+    database_hostname:str
+    database_port: int
+    database_username:str
+    database_password:str
+    database_name:str
+    redis_host: str 
+    redis_port: int
+    redis_db: int
 
 
     model_config={
-        'env_file':'.env',
+        'env_file':'.envremote',
         'env_file_encoding':'utf-8',
         'extra':'ignore',
         'case_sensitive':False }
 
+
+
     @property
-    def database_url(self) ->str:
-        return f"postgresql+asyncpg://{self.database_usename}:{self.database_password}@{self.database_hostname}:{self.database_port}/{self.database_name}";
+    def database_url(self) -> str:
+        return (
+            f"postgresql+asyncpg://"
+            f"{quote_plus(self.database_username)}:"
+            f"{quote_plus(self.database_password)}@"
+            f"{self.database_hostname}:"
+            f"{self.database_port}/"
+            f"{self.database_name}?ssl=require"
+        )
+
 
 
 def get_settings()->Settings:

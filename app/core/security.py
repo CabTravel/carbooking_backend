@@ -13,7 +13,7 @@ def create_access_token(user_id:UUID)->str:
     expire=datetime.now(timezone.utc)+timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     payload={
-        'userId':user_id,
+        'userId':str(user_id),
         'exp':expire    
     }
     return jwt.encode(payload,SECRET_KEY,algorithm=ALGORITHM)

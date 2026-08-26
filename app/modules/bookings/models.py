@@ -20,7 +20,7 @@ class Booking(RemoteDbTableMixin,Base):
     customerName=Column(String(length=500),nullable=False)
     customerPhoneNumber=Column(String(length=10),nullable=False)
     amount=Column(Float,nullable=False)
-    bookingDate=Column(Integer,nullable=False)
+    bookingDate=Column(BigInteger,nullable=False)
     fromStation=Column(String,nullable=False)
     toStation=Column(String,nullable=False)
     notes=Column(String,nullable=True)

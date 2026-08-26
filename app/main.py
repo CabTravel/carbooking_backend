@@ -7,6 +7,7 @@ from app.modules.authentication.router import router as AuthRouter
 from app.modules.bookings.router import router as BookingsRouter
 from  app.modules.car.router import router as CarRouter
 from app.modules.expenses.router import router as ExpenseRouter
+from app.modules.file.router import router as FileRouter
 from app.core.server_response import SuccessResponse
 
 
@@ -29,6 +30,7 @@ app.include_router(AuthRouter)
 app.include_router(BookingsRouter)
 app.include_router(CarRouter)
 app.include_router(ExpenseRouter)
+app.include_router(FileRouter)
 
 @app.get('/health')
 def health():

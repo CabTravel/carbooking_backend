@@ -20,12 +20,12 @@ class CarService:
         result=await self.repository.create_car(param=param,userId=userId)
         return OneCarOut(car=result)
 
-    async def update_car(self,param:UpdateCarParam):
-        result=await self.repository.update_car(param=param)
+    async def update_car(self,param:UpdateCarParam,userId:UUID):
+        result=await self.repository.update_car(param=param,userId=userId)
         return OneCarOut(car=result)
 
-    async def patch_car(self,param:PatchCarParam):
-        result=await self.repository.patch_update_car(param=param)
+    async def patch_car(self,param:PatchCarParam,userId:UUID):
+        result=await self.repository.patch_update_car(param=param,userId=userId)
         return OneCarOut(car=result)
 
     async def delete_car(self,carId:UUID,userId:UUID):

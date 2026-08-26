@@ -9,7 +9,7 @@ from app.modules.bookings.schemas import CreateBookingParam,UpdateBookingParam,P
 
 class BookingRepository:
 
-    def __int__(self,db:AsyncSession=Depends(get_db)):
+    def __init__(self,db:AsyncSession=Depends(get_db)):
         self.db=db
 
 
@@ -41,10 +41,10 @@ class BookingRepository:
             carNumber=param.carNumber,
             customerName=param.customerName,
             customerPhoneNumber=param.customerPhoneNumber,
-            amout=param.amout,
+            amount=param.amount,
             bookingDate=param.bookingDate,
             fromStation=param.fromStation,
-            tostation=param.toStation,
+            toStation=param.toStation,
             notes=param.notes,
             carLocalId=param.carLocalId,
             localCreateDate=param.localCreateDate,
@@ -72,7 +72,7 @@ class BookingRepository:
         booking.carNumber=param.carNumber
         booking.customerName=param.customerName
         booking.customerPhoneNumber=param.customerPhoneNumber
-        booking.amount=param.amout
+        booking.amount=param.amount
         booking.bookingDate=param.bookingDate
         booking.fromStation=param.fromStation
         booking.toStation=param.toStation

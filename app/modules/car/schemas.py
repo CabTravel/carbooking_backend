@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field,ConfigDict
 from uuid import UUID
 
 
@@ -31,8 +31,7 @@ class CarResponseSchema(BaseModel):
     leftImageUrl: str | None = None
     rightImageUrl: str | None = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CreateCarParam(BaseModel):
@@ -65,7 +64,7 @@ class CreateCarParam(BaseModel):
 
 class UpdateCarParam(BaseModel):
 
-    id: UUID
+    id: str
     localId: str
     carNumber: str
     carBrandName: str
@@ -91,7 +90,7 @@ class UpdateCarParam(BaseModel):
 
 class PatchCarParam(BaseModel):
 
-    id: UUID
+    id: str
 
     localId: str | None = None
 
@@ -106,8 +105,7 @@ class PatchCarParam(BaseModel):
     withDriverPerDayPrice: float | None = None
     withoutDriverPerKmPrice: float | None = None
     withoutDriverPerDayPrice: float | None = None
-    localCreateDate: int | None = None
-    localUpdateDate: int | None = None
+    localUpdateDate: int 
 
     coverImageUrl: str | None = None
     frontImageUrl: str | None = None
