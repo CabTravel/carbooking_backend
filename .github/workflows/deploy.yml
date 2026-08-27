@@ -19,7 +19,26 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
+
           script: |
+            set -e
+
             cd ~/carbooking_backend
-            git pull origin maindev
+
+            echo "===== BEFORE UPDATE ====="
+            git rev-parse HEAD
+
+            echo "===== FETCHING LATEST CODE ====="
+            git fetch origin maindev
+
+            echo "===== RESETTING TO ORIGIN/MAINDEV ====="
+            git reset --hard origin/maindev
+
+            echo "===== AFTER UPDATE ====="
+            git rev-parse HEAD
+
+            echo "===== REBUILDING DOCKER ====="
             docker compose up -d --build
+
+            echo "===== CONTAINERS ====="
+            docker compose ps
