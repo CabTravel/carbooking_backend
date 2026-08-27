@@ -2,7 +2,7 @@
 from fastapi import APIRouter,Depends,UploadFile,File
 from uuid import UUID
 from app.core.security import  get_current_user_id
-from app.modules.file.schema import FileUplaodUrlParam,FileLoadParam
+from app.modules.file.schema import FileUplaodUrlParam
 from app.modules.file.service import FileService
 from app.core.server_response import SuccessResponse
 
