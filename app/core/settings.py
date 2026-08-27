@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     redis_host: str 
     redis_port: int
     redis_db: int
+    # s3 cucket config
     r2_account_id=str
     r2_access_key_id=str
     r2_secret_access_key=str
