@@ -13,7 +13,7 @@ class FileService:
         self.repository=repository
 
 
-    async def file_upload_url(self,param:FileUplaodUrlParam ,userId: UUID, repository):
+    async def file_upload_url(self,param:FileUplaodUrlParam ,userId: UUID):
         result= await self.repository.file_upload_url(param=param,userId=userId)
 
         return result

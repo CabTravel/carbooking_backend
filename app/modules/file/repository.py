@@ -1,7 +1,8 @@
 import os
 from uuid import uuid4,UUID
-
+from fastapi import HTTPException
 import boto3
+from app.core.exceptions.exceptions import AppException
 
 from app.modules.file.schema import (
     FileUplaodUrlParam,
@@ -30,24 +31,29 @@ class FileRepository:
         userId:UUID
 
     ):
-        file_id = str(uuid4())
+        try:
 
-        object_key = (
-            f"{param.folder}/{str(userId)}/{file_id}-{param.fileName}"
-        )
+            
+                file_id = str(uuid4())
 
-        upload_url = self.s3_client.generate_presigned_url(
-            "put_object",
-            Params={
-                "Bucket": settings.r2_bucket_name,
-                "Key": object_key,
-                "ContentType": param.contentType,
-            },
-            ExpiresIn=6000,  # 10 minutes
-        )
+                object_key = (
+                    f"{param.folderName}/{str(userId)}/{file_id}-{param.fileName}"
+                )
 
-        file_url = f"{settings.r2_public_url}/{object_key}"
+                upload_url = self.s3_client.generate_presigned_url(
+                    "put_object",
+                    Params={
+                        "Bucket": settings.r2_bucket_name,
+                        "Key": object_key,
+                        "ContentType": param.fileType,
+                    },
+                    ExpiresIn=6000,  # 10 minutes
+                )
 
-        return FileUplaodUrlResponse(uploadUrl=upload_url,fileKey=object_key,fileUrl=file_url)
+                file_url = f"{settings.r2_public_url}/{object_key}"
 
-       
+                return FileUplaodUrlResponse(uploadUrl=upload_url,fileKey=object_key,fileUrl=file_url)
+
+        except Exception as e :
+             raise AppException(status_code=324,message=f"failed to urlrequest {str(e)}")
+
