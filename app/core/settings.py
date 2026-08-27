@@ -13,6 +13,13 @@ class Settings(BaseSettings):
     redis_host: str 
     redis_port: int
     redis_db: int
+    r2_account_id=str
+    r2_access_key_id=str
+    r2_secret_access_key=str
+    r2_bucket_name= str
+    r2_public_url=str
+    
+
 
 
     model_config={
@@ -22,6 +29,17 @@ class Settings(BaseSettings):
         'case_sensitive':False }
 
 
+
+    @property
+    def database_url(self) -> str:
+        return (
+            f"postgresql+asyncpg://"
+            f"{quote_plus(self.database_username)}:"
+            f"{quote_plus(self.database_password)}@"
+            f"{self.database_hostname}:"
+            f"{self.database_port}/"
+            f"{self.database_name}?ssl=require"
+        )
 
     @property
     def database_url(self) -> str:

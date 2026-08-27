@@ -1,52 +1,53 @@
-from fastapi import UploadFile,HTTPException,status
-from pathlib import Path
-from uuid import uuid4
+import os
+from uuid import uuid4,UUID
 
-from fastapi.responses import FileResponse
+import boto3
 
-from app.modules.file.schema import FileUploadParam,FileLoadParam
+from app.modules.file.schema import (
+    FileUplaodUrlParam,
+    FileUplaodUrlResponse,
+)
+from app.core.settings import get_settings
+
+settings=get_settings()
+
 
 class FileRepository:
+
     def __init__(self):
-        self.upload_dir = Path("uploads")
-            # Create folder if it doesn't exist
-        self.upload_dir.mkdir(
-            parents=True,
-            exist_ok=True
+    
+        self.s3_client = boto3.client(
+            "s3",
+            endpoint_url=settings.r2_public_url,
+            aws_access_key_id=settings.r2_access_key_id,
+            aws_secret_access_key=settings.r2_secret_access_key,
+            region_name="auto",
         )
 
-    async def upload_file(self,param:FileUploadParam)-> str:
-        if not param.file.filename:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="File name is missing"
-            )
-            # Get extension
-        extension = Path(param.file.filename).suffix
+    async def file_upload_url(
+        self,
+        param: FileUplaodUrlParam,
+        userId:UUID
 
-            # Generate unique filename
-        filename = f"{uuid4()}{extension}"
+    ):
+        file_id = str(uuid4())
 
-        file_path = self.upload_dir / filename
+        object_key = (
+            f"{param.folder}/{str(userId)}/{file_id}-{param.fileName}"
+        )
 
-            # Save file
-        with file_path.open("wb") as buffer:
-            while chunk := await param.file.read(1024 * 1024):
-                buffer.write(chunk)
+        upload_url = self.s3_client.generate_presigned_url(
+            "put_object",
+            Params={
+                "Bucket": settings.r2_bucket_name,
+                "Key": object_key,
+                "ContentType": param.contentType,
+            },
+            ExpiresIn=6000,  # 10 minutes
+        )
 
-        return str(file_path)
+        file_url = f"{settings.r2_public_url}/{object_key}"
 
-    async def load_file(self,param:FileLoadParam) -> FileResponse:
-        file_path=Path(param.url)
+        return FileUplaodUrlResponse(uploadUrl=upload_url,fileKey=object_key,fileUrl=file_url)
 
-        if not file_path.exists():
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="File Not Found")
-        if not file_path.is_file():
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,detail="Path is not a file")
-
-        return FileResponse(
-            path=file_path,
-            filename=file_path.name)
-    
-        
-
+       
