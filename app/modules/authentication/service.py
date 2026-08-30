@@ -25,7 +25,7 @@ class AuthService:
     async def create_profile(self, param:CreateProfileParam,userId:UUID):
 
         result=await self.repository.create_profile(param=param,userId=userId)
-        return OneProfileOut(profile=result) 
+        return OneProfileOut(user=result.user, profile=result) 
 
     async def update_profile(self, param:UpdateProfileParam,userId=UUID) -> Profile:
 

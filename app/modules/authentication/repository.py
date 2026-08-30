@@ -32,7 +32,13 @@ class AuthRepository:
 
         user= result.scalar_one_or_none()
         return user
-    
+
+
+    async def get_user_by_id(self,id:UUID)-> User|None:
+
+        result= await self.db.execute(select(User).where(User.id==id))
+        return result.scalar_one_or_none()
+  
 
 
     async def generate_otp(self,param:GenerateOtpRequest):
@@ -124,11 +130,15 @@ class AuthRepository:
 
     async def create_profile(self,param:CreateProfileParam,userId:UUID)-> Profile:
         try:
+            user = await self.get_user_by_id(id=userId)
 
+            if user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="No user exist with id")
+        
             preProfile=await self.get_profile_by_user_id(userId=userId)
 
             if preProfile !=None:
-                return preProfile
+                return HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Profile already exist for user")
             
 
             profile=Profile(
