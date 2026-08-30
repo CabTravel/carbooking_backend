@@ -65,6 +65,7 @@ class UpdateProfileParam(BaseModel):
 
 
 class OneProfileOut(BaseModel):
+    user:UserOut
     profile:ProfileOut
 
 
