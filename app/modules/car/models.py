@@ -26,7 +26,7 @@ class Car(RemoteDbTableMixin ,Base):
     seats=Column(Integer,nullable=False)
 
     driverName=Column(String)
-    driverphoneNumber=Column(String)
+    driverPhoneNumber=Column(String)
     withDriverPerKmPrice=Column(Numeric(12,3))
     withDriverPerDayPrice=Column(Numeric(12,3))
     withoutDriverPerKmPrice=Column(Numeric(12,3))
