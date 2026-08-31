@@ -72,7 +72,7 @@ class UpdateCarParam(BaseModel):
     tripType: str
     seats: int
     driverName: str | None = None
-    driverphoneNumber: str | None = None
+    driverPhoneNumber: str | None = None
 
     withDriverPerKmPrice: float | None = None
     withDriverPerDayPrice: float | None = None
