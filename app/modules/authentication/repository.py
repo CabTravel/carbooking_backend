@@ -146,20 +146,29 @@ class AuthRepository:
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Profile already exist for user")
             
 
-            profile=Profile(
-            userId=userId,
-            ownerName=param.ownerName,
-            companyName=param.companyName,
-        
-            logoImageUrl=param.logoImageUrl,
-            aboutCompany=param.aboutCompany,
-            companyWebsite=param.companyWebsite )
+            profile= Profile(
+                userId=userId,
+                   ownerName=param.ownerName,
+                 companyName=param.companyName,
+                logoImageUrl=param.logoImageUrl,
+                aboutCompany=param.aboutCompany,
+                companyWebsite=param.companyWebsite,
+                instagramProfile=param.instagramProfile
+
+            
+
+            )
+
+
 
             self.db.add(profile)
             await self.db.commit()
-            await self.db.refresh(profile)
 
-            return profile
+            
+            await self.db.refresh(profile)
+             
+
+            return profile,user
 
         except HTTPException :
             raise
@@ -174,6 +183,7 @@ class AuthRepository:
     async def update_profile(self,param:UpdateProfileParam,userId:UUID)-> Profile:
    
         profile=await self.get_profile_by_id(id=UUID(param.id))
+        
 
         if profile is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No Profile exists with id")
@@ -188,7 +198,9 @@ class AuthRepository:
         await self.db.commit()
         await self.db.refresh(profile)
 
-        return profile
+        user=await self.get_user_by_id(id=userId)
+
+        return profile,user
     
 
 
