@@ -49,11 +49,12 @@ class AuthRepository:
 
             await redist_client.set(
                 key, my_otp, ex=300 )
+            
             value=await redist_client.get(key)
             # await self.sms_provider.send_sms(phone_number=param.phoneNumber,message=f"your carbooking otp is {my_otp}")
             return {
-                "otp":my_otp,
-                "message":f"Saved otp is "
+                "otp":value,
+                "message":f"Saved otp is {value}"
                     }
             
         except Exception as e:
@@ -64,13 +65,14 @@ class AuthRepository:
         try:      
             key=f"otp:{param.phoneNumber}"
             value=await redist_client.get(key)
-            value=param.otp
+            
             if(value==None):
                 raise AppException(
                     message='Otp Expired',
                     status_code=status.HTTP_400_BAD_REQUEST
                 )
-            if value==param.otp:
+            print(f"valud from resid {value} and otp {param.otp}")
+            if value ==param.otp:
                 user=await self.get_user_by_phone_or_none(phoneNumber=param.phoneNumber)
 
                 if user is None:
@@ -95,6 +97,9 @@ class AuthRepository:
                     message='Invalid Otp ',
                     status_code=status.HTTP_400_BAD_REQUEST
                 ) 
+
+        except AppException:
+            raise
                 
         except Exception as e:
             raise AppException(status_code=500, message=f'Failed to verify otp {str(e)}')
@@ -138,7 +143,7 @@ class AuthRepository:
             preProfile=await self.get_profile_by_user_id(userId=userId)
 
             if preProfile !=None:
-                return HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Profile already exist for user")
+                raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Profile already exist for user")
             
 
             profile=Profile(
@@ -155,7 +160,12 @@ class AuthRepository:
             await self.db.refresh(profile)
 
             return profile
+
+        except HTTPException :
+            raise
         except Exception as e:
+            await self.db.rollback()
+            
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail= f"Internal Server error {str(e)}"
                                 )
