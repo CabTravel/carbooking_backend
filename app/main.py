@@ -1,9 +1,11 @@
 from fastapi import FastAPI,HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from app.core.exceptions.exception_handler import global_exception_handler,http_exception_handler,app_exception_handler
 
 from app.core.exceptions.exceptions import AppException
 
 from app.modules.authentication.router import router as AuthRouter
+from app.core.websearch.router import webrouter
 from app.modules.bookings.router import router as BookingsRouter
 from  app.modules.car.router import router as CarRouter
 from app.modules.expenses.router import router as ExpenseRouter
@@ -13,8 +15,18 @@ from app.core.server_response import SuccessResponse
 
 
 app=FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+       "*"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.add_exception_handler(AppException,app_exception_handler)
+
 
 app.add_exception_handler(
     HTTPException,
@@ -31,6 +43,7 @@ app.include_router(BookingsRouter)
 app.include_router(CarRouter)
 app.include_router(ExpenseRouter)
 app.include_router(FileRouter)
+app.include_router(webrouter)
 
 @app.get('/health')
 def health():

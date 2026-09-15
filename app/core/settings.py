@@ -19,6 +19,12 @@ class Settings(BaseSettings):
     r2_secret_access_key:str
     r2_bucket_name: str
     r2_public_url:str
+
+    # whatsapp message
+    whatsapp_access_token:str
+    whatsapp_phone_number_id:str
+    whatsapp_api_version:str
+    whatsapp_otp_template:str
     
 
 
@@ -31,16 +37,17 @@ class Settings(BaseSettings):
 
 
 
-    @property
-    def database_url(self) -> str:
-        return (
-            f"postgresql+asyncpg://"
-            f"{quote_plus(self.database_username)}:"
-            f"{quote_plus(self.database_password)}@"
-            f"{self.database_hostname}:"
-            f"{self.database_port}/"
-            f"{self.database_name}?ssl=require"
-        )
+    # @property
+    # def database_url(self) -> str:
+    #     return (
+    #         f"postgresql+asyncpg://"
+    #         f"{quote_plus(self.database_username)}:"
+    #         f"{quote_plus(self.database_password)}@"
+    #         f"{self.database_hostname}:"
+    #         f"{self.database_port}/"
+    #         f"{self.database_name}"
+    #         # ?ssl=require"
+    #     )
 
     @property
     def database_url(self) -> str:

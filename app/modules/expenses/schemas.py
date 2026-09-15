@@ -37,8 +37,24 @@ class ExpenseUpdateParam(BaseModel):
     localUpdateDate: int
 
 
-class ExpensePatchUpdateParam(BaseModel):
+class CreateMultipleExpenseParam(BaseModel):
+    expenses:list[ExpenseCreateParam]
 
+class CreateMultipleExpensesOut(BaseModel):
+    createdExpenses:list[ExpenseResponseSchema]
+    failedExpenses:list[ExpenseCreateParam]
+    reasons:list[str]
+
+class UpdateMultipleExpenseParam(BaseModel):
+    expenses:list[ExpenseUpdateParam]
+
+class UpdateMultipleExpenseOut(BaseModel):
+    updatedExpenses:list[ExpenseResponseSchema]
+    failedExpenses:list[ExpenseUpdateParam]
+    reasons:list[str]
+
+
+class ExpensePatchUpdateParam(BaseModel):
     id: str
     localId: str | None = None
     amount: float | None = None

@@ -8,17 +8,21 @@ class User(RemoteDbTableMixin, Base):
     __tablename__='users'
 
     phoneNumber=Column(
-
         String(10),
         nullable=False,
         unique=True,
         index=True
     )
 
-    profile=relationship(
-        'Profile',
-        back_populates='user',
-        uselist=False
+    profile = relationship(
+        "Profile",
+        back_populates="user",
+        uselist=False,
+    )
+
+    cars = relationship(
+        "Car",
+        back_populates="user",
     )
 
 class Profile(RemoteDbTableMixin,Base):

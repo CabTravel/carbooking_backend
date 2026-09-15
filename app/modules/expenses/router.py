@@ -4,7 +4,7 @@ from uuid import UUID
 from app.core.server_response import SuccessResponse
 from app.modules.expenses.service import ExpenseService
 from app.core.security import get_current_user_id
-from app.modules.expenses.schemas import ExpenseCreateParam,ExpenseUpdateParam,ExpensePatchUpdateParam
+from app.modules.expenses.schemas import ExpenseCreateParam,ExpenseUpdateParam,ExpensePatchUpdateParam,CreateMultipleExpenseParam,UpdateMultipleExpenseParam
 router=APIRouter(prefix='/expenses')
 
 
@@ -37,3 +37,14 @@ async def patch_expense(param:ExpensePatchUpdateParam,service:ExpenseService=Dep
 async def delete_expense(id:str,service:ExpenseService=Depends(),userId:UUID=Depends(get_current_user_id)):
     result= await service.delete_expense(expense_id=UUID(id),userId=userId)
     return SuccessResponse(data=result)
+
+@router.post('/multiple',response_model=SuccessResponse)
+async def create_multiple(param:CreateMultipleExpenseParam,service:ExpenseService=Depends(),userId:UUID=Depends(get_current_user_id)):
+    result=await service.create_multiple(userId=userId,param=param)
+    return SuccessResponse(data=result)
+
+@router.put('/multiple',response_model=SuccessResponse)
+async def update_multiple(param:UpdateMultipleExpenseParam,service:ExpenseService=Depends(),userId:UUID=Depends(get_current_user_id)):
+    result=await service.update_multiple(userId=userId,param=param)
+    return SuccessResponse(data=result)
+

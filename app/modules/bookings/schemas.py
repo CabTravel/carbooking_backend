@@ -2,7 +2,6 @@ from pydantic import BaseModel, Field,ConfigDict
 from uuid import UUID
 
 class BookingResponseSchema(BaseModel):
-
     id: UUID
     localId: str
     carName: str
@@ -23,7 +22,6 @@ class BookingResponseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 class CreateBookingParam(BaseModel):
-
     localId: str
     carName: str
     carNumber: str
@@ -73,6 +71,24 @@ class PatchBookingParam(BaseModel):
     localUpdateDate: int 
 
 
+class CreateMultipleBookingsParam(BaseModel):
+    bookings:list[CreateBookingParam]
+
+
+class CreateMultipleBookingsOut(BaseModel):
+    createdBookings:list[BookingResponseSchema]
+    failedBookings: list[CreateBookingParam]
+    reasons: list[str]
+
+
+
+class UpdateMultipleBookingsParam(BaseModel):
+    bookings:list[UpdateBookingParam]
+
+class UpdateMultipleBookingsOut(BaseModel):
+    updatedBookings:list[BookingResponseSchema]
+    failedBookings: list[UpdateBookingParam]
+    reasons: list[str]
 
 
 class OneBookingOut(BaseModel):

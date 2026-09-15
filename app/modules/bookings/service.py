@@ -3,7 +3,7 @@ from app.modules.bookings.repository import BookingRepository
 from uuid import UUID
 from app.core.server_response import SuccessResponse
 
-from app.modules.bookings.schemas import OneBookingOut,BookingsListOut,CreateBookingParam,UpdateBookingParam,PatchBookingParam
+from app.modules.bookings.schemas import OneBookingOut,BookingsListOut,CreateBookingParam,UpdateBookingParam,PatchBookingParam,CreateMultipleBookingsParam,UpdateMultipleBookingsParam,CreateMultipleBookingsOut,UpdateMultipleBookingsOut
 from fastapi import Depends
 class BookingService:
 
@@ -33,6 +33,16 @@ class BookingService:
 
         return OneBookingOut(booking=result)
 
+    async def create_multiple_bookings(self,param:CreateMultipleBookingsParam,userId:UUID):
+
+        result= await self.repository.create_multiple(userId=userId,param=param)
+        result= CreateMultipleBookingsOut(
+            createdBookings=result[0],
+            failedBookings=result[1],
+            reasons=result[2]
+        )
+        return result
+
        
 
     async def update_booking(self,param:UpdateBookingParam):
@@ -40,7 +50,17 @@ class BookingService:
 
         return OneBookingOut(booking=result)
 
-    
+
+    async def update_multiple_bookings(self,userId:UUID, param:UpdateMultipleBookingsParam):
+
+        result=await self.repository.update_multiple(userId=userId,param=param)
+        result= UpdateMultipleBookingsOut(
+            updatedBookings=result[0],
+            failedBookings=result[1],
+            reasons=result[2]
+        )
+        return result
+
 
     async def patch_booking(self,param:PatchBookingParam):
 

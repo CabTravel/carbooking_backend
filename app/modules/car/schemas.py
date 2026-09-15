@@ -88,6 +88,25 @@ class UpdateCarParam(BaseModel):
     rightImageUrl: str | None = None
 
 
+class CreateMultipleCarsParam(BaseModel):
+    cars:list[CreateCarParam]
+
+class CreateMultipleCarsOut(BaseModel):
+    createdCars:list[CarResponseSchema]
+    failedCars:list[CreateCarParam]
+    reasons:list[str]
+
+class UpdateMultipleCarsParam(BaseModel):
+    cars:list[UpdateCarParam]
+
+class UpdateMultipleCarsOut(BaseModel):
+    updatedCars:list[CarResponseSchema]
+    failedCars:list[UpdateCarParam]
+    reasons:list[str]
+    
+
+
+
 class PatchCarParam(BaseModel):
 
     id: str
@@ -120,3 +139,10 @@ class OneCarOut(BaseModel):
 
 class CarsListOut(BaseModel):
     cars: list[CarResponseSchema]
+
+
+class CarSearchParam(BaseModel):
+    fromStation:str|None=None
+    toStation:str|None=None
+    seats:int|None=None
+    

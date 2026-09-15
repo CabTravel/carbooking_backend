@@ -17,6 +17,10 @@ from app.database.session import get_db
 from app.modules.messaging.aws_sms_provider import AwsSnsSmsProvider
 from app.modules.messaging.msg91_sms_provider import Msg91SmsProvider
 
+from app.core.workers.tasks import (send_otp)
+from app.core.workers.schemas.otp_generate_worker_param import GenerateOtpParam
+
+from sqlalchemy.orm import selectinload
 
 
 class AuthRepository:
@@ -51,7 +55,12 @@ class AuthRepository:
                 key, my_otp, ex=300 )
             
             value=await redist_client.get(key)
-            # await self.sms_provider.send_sms(phone_number=param.phoneNumber,message=f"your carbooking otp is {my_otp}")
+            
+            send_otp.delay( {
+                "phoneNumber": param.phoneNumber,
+                "otp": my_otp
+            })
+
             return {
                 "otp":value,
                 "message":f"Saved otp is {value}"
@@ -71,10 +80,10 @@ class AuthRepository:
                     message='Otp Expired',
                     status_code=status.HTTP_400_BAD_REQUEST
                 )
-            print(f"valud from resid {value} and otp {param.otp}")
+          
             if value ==param.otp:
                 user=await self.get_user_by_phone_or_none(phoneNumber=param.phoneNumber)
-
+                print("user from db is none")
                 if user is None:
                     user=await self.create_user(phoneNumber=param.phoneNumber)
                     profile=None
@@ -203,6 +212,15 @@ class AuthRepository:
         return profile,user
     
 
+    async def get_user_with_cars(self,userId:UUID):
+           
+    
+        query = select(User).where(User.id==userId).options(
+                   selectinload(User.cars)
+                    )
+        result= await self.db.execute(query)
+
+        return result.scalar_one_or_none()
 
 
 

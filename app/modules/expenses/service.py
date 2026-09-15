@@ -2,7 +2,7 @@
 from app.modules.expenses.repository import ExpenseRepository
 from fastapi import Depends
 from uuid import UUID
-from app.modules.expenses. schemas import OneExpenseOut,ExpensesListOut,ExpenseCreateParam,ExpenseUpdateParam,ExpensePatchUpdateParam
+from app.modules.expenses. schemas import OneExpenseOut,ExpensesListOut,ExpenseCreateParam,ExpenseUpdateParam,ExpensePatchUpdateParam,CreateMultipleExpenseParam,CreateMultipleExpensesOut,UpdateMultipleExpenseParam,UpdateMultipleExpenseOut
 class ExpenseService:
     def __init__(self,repository:ExpenseRepository=Depends()):
         self.repository=repository
@@ -32,5 +32,24 @@ class ExpenseService:
         result=await self.repository.delete_expense(id=expense_id,userId=userId)
         return OneExpenseOut(expense=result) 
     
-    
+
+    async def create_multiple(self,userId:UUID,param:CreateMultipleExpenseParam):
+        result=await self.repository.create_multiple_expenses(userId=userId,param=param)
+
+        result= CreateMultipleExpensesOut(createdExpenses=result[0],failedExpenses=result[1],reasons=result[2])
+
+        return result
+
+    async def update_multiple(self,userId:UUID,param:UpdateMultipleExpenseParam):
+
+        result=await self.repository.update_multiple_expenses(userId=userId,param=param)
+        result=UpdateMultipleExpenseOut(
+            updatedExpenses=result[0],
+            failedExpenses=result[1],
+            reasons=result[2]
+        )
+
+        return result
+
+        
         

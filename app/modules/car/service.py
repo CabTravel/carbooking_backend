@@ -1,7 +1,7 @@
 
 from app.modules.car.repository import CarRepository
 from uuid import UUID
-from app.modules.car. schemas import OneCarOut,CarsListOut,CreateCarParam,UpdateCarParam,PatchCarParam
+from app.modules.car. schemas import OneCarOut,CarsListOut,CreateCarParam,UpdateCarParam,PatchCarParam,CreateMultipleCarsParam,CreateMultipleCarsOut,UpdateMultipleCarsParam,UpdateMultipleCarsOut
 from fastapi import Depends
 
 class CarService:
@@ -31,6 +31,22 @@ class CarService:
     async def delete_car(self,carId:UUID,userId:UUID):
         result=await self.repository.delete_car(carId=carId,userId=userId)
         return OneCarOut(car=result)
+
+    async def create_multiple_cars(self,userId:UUID,param:CreateMultipleCarsParam):
+
+        result=await self.repository.create_multiple_cars(self,userId=userId,param=param)
+
+        result= CreateMultipleCarsOut(createdCars=result[0],failedCars=result[1],reasons=result[2])
+
+        return result
+
+    async def update_multiple_cars(self,userId:UUID,param:UpdateMultipleCarsParam):
+
+        result=await self.repository.update_multiple_cars(userId=userId,param=param)
+        result= UpdateMultipleCarsOut(updatedCars=result[0],failedCars=result[1],reasons=result[2])
+        return result
+
+   
 
 
 

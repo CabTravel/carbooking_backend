@@ -5,7 +5,7 @@ from app.modules.bookings. models import Booking
 from sqlalchemy import select
 from fastapi import HTTPException,status,Depends
 from app.database.session import get_db
-from app.modules.bookings.schemas import CreateBookingParam,UpdateBookingParam,PatchBookingParam
+from app.modules.bookings.schemas import CreateBookingParam,UpdateBookingParam,PatchBookingParam,CreateMultipleBookingsParam,UpdateMultipleBookingsParam
 
 class BookingRepository:
 
@@ -114,6 +114,52 @@ class BookingRepository:
         await self.db.delete(booking)
         await self.db.commit()
         return booking
+
+
+    async def create_multiple(self,userId:UUID, param:CreateMultipleBookingsParam):
+
+        bookingsSchemas=param.bookings
+
+        createdBookings=[]
+        failedBookings=[]
+
+        reasons=[]
+
+        for booking in bookingsSchemas:
+            try:   
+                createdBooking=await self.create_booking(userId=userId,param=booking)
+                createdBookings.append(createdBooking)
+
+            except Exception as e :
+                failedBookings.append(booking)
+                reasons.append(f"{e}")
+
+        return (createdBookings,failedBookings,reasons)
+
+    async def update_multiple(self,userId:UUID, param:UpdateMultipleBookingsParam):
+
+        bookingsSchemas=param.bookings
+
+        updatedBookings=[]
+        failedBookings=[]
+        reasons=[]
+        for booking in bookingsSchemas:
+            try:   
+                updatedBooking=await self.update_booking(param=booking)
+                updatedBookings.append(updatedBooking)
+            except Exception as e :
+                failedBookings.append(booking)
+                reasons.append(f"{e}")
+
+        return (updatedBookings,failedBookings,reasons)
+    
+
+
+
+
+
+
+
 
 
 

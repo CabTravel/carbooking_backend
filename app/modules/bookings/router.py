@@ -4,7 +4,7 @@ from uuid import UUID
 from app.core.security import get_current_user_id
 from app.core.server_response import SuccessResponse
 from app.modules.bookings.service import BookingService
-from app.modules.bookings.schemas import CreateBookingParam,UpdateBookingParam,PatchBookingParam
+from app.modules.bookings.schemas import CreateBookingParam,UpdateBookingParam,PatchBookingParam,CreateMultipleBookingsParam,UpdateMultipleBookingsParam
 
 from app.core.server_response import SuccessResponse
 
@@ -40,6 +40,22 @@ async def update_booking(param:UpdateBookingParam ,service:BookingService=Depend
 async def patch_booking(param:PatchBookingParam ,service:BookingService=Depends(), userId:UUID=Depends(get_current_user_id)):
 
     result= await service.patch_booking(param=param)
+    return SuccessResponse(data=result)
+
+@router.delete('/{id}',response_model=SuccessResponse)
+async def delete_booking(id:str ,service:BookingService=Depends(), userId:UUID=Depends(get_current_user_id)):
+    result= await service.delete_booking(booking_id=UUID(id))
+    return SuccessResponse(data=result)
+
+
+@router.post('/multiple',response_model=SuccessResponse)
+async def create_multiple(param:CreateMultipleBookingsParam ,service:BookingService=Depends(), userId:UUID=Depends(get_current_user_id)):
+    result= await service.create_multiple_bookings(userId=userId,param=param)
+    return SuccessResponse(data=result)
+
+@router.put('/multiple',response_model=SuccessResponse)
+async def update_multiple(param:UpdateMultipleBookingsParam ,service:BookingService=Depends(), userId:UUID=Depends(get_current_user_id)):
+    result= await service.update_multiple_bookings(userId=userId,param=param)
     return SuccessResponse(data=result)
 
 @router.delete('/{id}',response_model=SuccessResponse)
