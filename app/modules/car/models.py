@@ -4,6 +4,8 @@ from app.core.database.remote_db_table_base_mixin import RemoteDbTableMixin
 
 from sqlalchemy import String,Column,Boolean,Integer,Numeric,BigInteger,ForeignKey,UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+
 
 class Car(RemoteDbTableMixin ,Base):
     __tablename__='cars'
@@ -18,6 +20,11 @@ class Car(RemoteDbTableMixin ,Base):
   
     localId=Column(String,nullable=False,unique=True)
     userId=Column(UUID,ForeignKey('users.id'),nullable=False,index=True)
+
+    user = relationship(
+        "User",
+        back_populates="cars",
+    )
 
     carNumber=Column(String,nullable=False)
     carBrandName=Column(String,nullable=False)
@@ -40,6 +47,8 @@ class Car(RemoteDbTableMixin ,Base):
     backImageUrl = Column(String(500),nullable=True,)
     leftImageUrl = Column(String(500),nullable=True,)
     rightImageUrl = Column(String(500),nullable=True,)
+
+
 
 
 

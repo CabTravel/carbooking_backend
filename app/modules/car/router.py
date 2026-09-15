@@ -4,7 +4,7 @@ from app.core.server_response import SuccessResponse
 
 from uuid import UUID
 from app.core.security import get_current_user_id
-from app.modules.car.schemas import CreateCarParam,UpdateCarParam,PatchCarParam
+from app.modules.car.schemas import CreateCarParam,UpdateCarParam,PatchCarParam,CreateMultipleCarsParam,UpdateMultipleCarsParam
 
 router=APIRouter(prefix='/car')
 
@@ -40,6 +40,23 @@ async def update_car_patch(param:PatchCarParam,service:CarService=Depends(),user
 async def delete_car(id:str,service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
     result=await service.delete_car(carId=id,userId=userId)
     return SuccessResponse(data=result)
+
+@router.post('/multiple',response_model=SuccessResponse)
+async def create_multiple_cars(param:CreateMultipleCarsParam, service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
+    result=await service.create_multiple_cars(userId=userId,param=param)
+    return SuccessResponse(data=result)
+
+
+@router.put('/multiple',response_model=SuccessResponse)
+async def update_multiple(param:UpdateMultipleCarsParam,service:CarService=Depends(),userId:UUID=Depends(get_current_user_id)):
+    result= await service.update_multiple_cars(userId=userId,param=param)
+    return SuccessResponse(data=result)
+
+
+
+
+
+
 
 
     

@@ -4,7 +4,7 @@ from uuid import UUID
 from sqlalchemy import select
 from app.modules.expenses.models import ExpenseModel
 from fastapi import HTTPException,status
-from app.modules.expenses.schemas import ExpenseCreateParam,ExpenseUpdateParam,ExpensePatchUpdateParam
+from app.modules.expenses.schemas import ExpenseCreateParam,ExpenseUpdateParam,ExpensePatchUpdateParam,CreateMultipleExpenseParam,UpdateMultipleExpenseParam
 
 from fastapi import Depends
 from app.database.session import get_db
@@ -92,6 +92,48 @@ class ExpenseRepository:
         await self.db.delete(expense)
         return expense
 
+
+
+    async def create_multiple_expenses(self,userId:UUID,param:CreateMultipleExpenseParam):
+
+        expenses=param.expenses
+        createdExpenses=[]
+        failedExpenses=[]
+        reasons=[]
+
+        for expense in expenses:
+            try:
+                createdExpense=await self.create_expense(param=expense,userId=userId)
+                createdExpenses.append(createdExpense)
+     
+            except Exception as e:
+                failedExpenses.append(expense)
+                reasons.append(f"{e}")
+
+        return (createdExpenses,failedExpenses,reasons)
+
+    async def update_multiple_expenses(self,userId:UUID,param:UpdateMultipleExpenseParam):
+
+        expenses=param.expenses
+        updatedExpenses=[]
+        failedExpenses=[]
+        reasons=[]
+
+        for expense in expenses:
+            try:
+                updatedExpense=await self.update_expense(param=expense,userId=userId)
+                updatedExpenses.append(updatedExpense)
+     
+            except Exception as e:
+                failedExpenses.append(expense)
+                reasons.append(f"{e}")
+
+        return (updatedExpenses,failedExpenses,reasons)
+
+
+            
+
+        
 
 
 

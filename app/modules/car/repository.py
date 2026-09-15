@@ -2,9 +2,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.car. models import Car
 from sqlalchemy import select
 from fastapi import HTTPException,status,Depends
-from app.modules.car.schemas import UpdateCarParam,PatchCarParam,CreateCarParam
+from app.modules.car.schemas import UpdateCarParam,PatchCarParam,CreateCarParam,CreateMultipleCarsParam,UpdateMultipleCarsParam,CarSearchParam
 from app.database.session import get_db
 from uuid import UUID
+
+from sqlalchemy.orm import selectinload
 
 class CarRepository:
     def __init__(self,db:AsyncSession=Depends(get_db)):
@@ -132,6 +134,57 @@ class CarRepository:
         await self.db.commit()
 
         return car
+
+    async def create_multiple_cars(self,userId:UUID,param:CreateMultipleCarsParam):
+
+        cars=param.cars
+
+        createdCars=[]
+        failedCars=[]
+        reasons=[]
+
+        for car in cars:
+            try:
+                createdCar=await self.create_car(param=param,userId=userId)
+                createdCars.append(createdCar)
+
+            except Exception as e:
+
+                failedCars.append(car)
+                reasons.append(f"{e}")
+
+        return (createdCars,failedCars,reasons)
+
+    async def update_multiple_cars(self,userId:UUID,param:UpdateMultipleCarsParam):
+
+        cars=param.cars
+        updatedCars=[]
+        failedCars=[]
+        reasons=[]
+
+        for car in cars:
+            try:
+                updatedCar=await self.update_car(param=param,userId=userId)
+                updatedCars.append(updatedCar)
+            except Exception as e:
+                failedCars.append(car)
+                reasons.append(f"{e}")
+                
+        return (updatedCars,failedCars,reasons)
+
+
+    async def search_cars(self,param:CarSearchParam):
+
+        # result=await self.db.execute(select(Car).order_by(Car.createDate.desc()).limit(50))
+        query= select(Car).options(
+            selectinload(Car.user)
+            ).order_by(Car.createDate.desc()).limit(50)
+        if param.seats is not None:
+            query = query.where(Car.seats >= param.seats)
+
+        result = await self.db.execute(query)
+
+        return result.scalars().all()
 
 
 

@@ -6,12 +6,15 @@ services:
     restart: unless-stopped
     
     env_file:
-      - .envremote
+      - .env
+
     depends_on:
       # db:
       #   condition: service_healthy
       redis:
-        condition: service_started
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
         
     volumes:
       - .:/app
@@ -39,6 +42,7 @@ services:
 
   #   expose:
   #     - "5432"
+
   #   healthcheck:
   #     test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME} -d ${DATABASE_NAME}"]
   #     interval: 5s
@@ -57,6 +61,13 @@ services:
     expose:
       - "6379"
 
+    healthcheck:
+      test: ["CMD", "redis-cli","ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
   nginx:
     image: nginx:alpine
     container_name: carbooking_nginx
@@ -70,10 +81,66 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
 
+  otp_celery_worker:
+    build: .
+    container_name: otp_celery_worker
+    restart: unless-stopped
+
+    env_file:
+      - .env
+    command: celery -A app.core.workers.celery_app worker --loglevel=info -Q otp_queue 
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+      redis:
+        condition: service_healthy
+      
+  
+  calculation_celery_worker:
+    build: .
+    container_name: calculation_celery_worker
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    command: celery -A app.core.workers.celery_app worker --loglevel=info -Q calculation_queue 
+
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+      redis:
+        condition: service_healthy
+
+
+
+  
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq
+    restart: unless-stopped
+
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+    expose:
+      - "5672"
+    
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
   
 volumes:
-  # postgres_data:
+  postgres_data:
   redis_data:
+  rabbitmq_data:
 
 
 

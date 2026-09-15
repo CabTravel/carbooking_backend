@@ -6,11 +6,12 @@ async def global_exception_handler(
         request:Request,
         exc:Exception
             ):
+    print(f"in glocal exception handlerr ${str(exc)}")
     return JSONResponse(
         status_code=500,
         content={
             'status_code':500,
-            'message':"Internal server error"
+            'message':f"{str(exc.detail)} Internal server error"
         }
     )
 
@@ -18,6 +19,7 @@ async def http_exception_handler(
         request:Request,
         exc:HTTPException
 ):
+    print(f"httpexception ${str(exc.detail)}")
     return JSONResponse(
         status_code=exc.status_code,
         content={
@@ -27,6 +29,7 @@ async def http_exception_handler(
     )
 
 async def app_exception_handler(request:Request,exc:AppException):
+    print(f" in app exception handler ${str(exc.message)}")
     return JSONResponse(
         status_code=exc.status_code,
         content={
