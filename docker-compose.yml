@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     
     env_file:
-      - .env
+      - .envremote
 
     depends_on:
       # db:
@@ -87,7 +87,7 @@ services:
     restart: unless-stopped
 
     env_file:
-      - .env
+      - .envremote
     command: celery -A app.core.workers.celery_app worker --loglevel=info -Q otp_queue 
 
     depends_on:
@@ -104,7 +104,7 @@ services:
     restart: unless-stopped
 
     env_file:
-      - .env
+      - .envremote
 
     command: celery -A app.core.workers.celery_app worker --loglevel=info -Q calculation_queue 
 
