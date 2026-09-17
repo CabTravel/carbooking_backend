@@ -12,6 +12,8 @@ from app.core.security import get_current_user_id
 
 router=APIRouter(prefix='/auth')
 
+
+
 @router.post('/generateOtp',response_model=SuccessResponse)
 async def generateOtp(request:GenerateOtpRequest,service:AuthService=Depends()):
     result= await service.generate_otp(param=request )

@@ -42,8 +42,16 @@ class AuthRepository:
 
         result= await self.db.execute(select(User).where(User.id==id))
         return result.scalar_one_or_none()
-  
 
+    async def get_profile_by_username(self,username:str):
+        query = (
+                    select(Profile)
+                    .options(selectinload(User.profile))
+                    .where(Profile.companyWebsite == username).options(selectinload(User.cars))
+                )
+        result= await self.db.execute(query)
+
+        return result.scalar_one_or_none()
 
     async def generate_otp(self,param:GenerateOtpRequest):
 

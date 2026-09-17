@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     whatsapp_phone_number_id:str
     whatsapp_api_version:str
     whatsapp_otp_template:str
+
+    RAZORPAY_KEY_ID:str
+    RAZORPAY_KEY_SECRET:str
+    RAZORPAY_WEBHOOK_SECRET:str
     
 
 
