@@ -7,8 +7,8 @@ from sqlalchemy.dialects.postgresql import UUID
 class User(RemoteDbTableMixin, Base):
     __tablename__='users'
 
-    phoneNumber=Column(
-        String(10),
+    email=Column(
+        String(50),
         nullable=False,
         unique=True,
         index=True
@@ -28,6 +28,7 @@ class User(RemoteDbTableMixin, Base):
 class Profile(RemoteDbTableMixin,Base):
     __tablename__='profiles'
     userId=Column(UUID(as_uuid=True),ForeignKey('users.id'),nullable=False,unique=True,index=True)
+    phoneNumber =Column(String(50))
     ownerName=Column(String(100))
     companyName=Column(String(150))
     logoImageUrl=Column(String)

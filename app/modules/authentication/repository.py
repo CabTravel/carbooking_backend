@@ -9,7 +9,7 @@ from uuid import UUID
 from app.core.exceptions.exceptions import AppException
 
 from app.core.services.redis.redis import redist_client
-from  app.modules.authentication.schemas import VerifyOtpParam,VerifyOtpOut,CreateProfileParam,UpdateProfileParam,GenerateOtpRequest,UserOut
+from  app.modules.authentication.schemas import VerifyOtpParam,VerifyOtpOut,CreateProfileParam,UpdateProfileParam,GenerateOtpRequest,UserOut,LoginWithGoogleParam
 from app.modules.authentication.models import User,Profile
 
 from fastapi import Depends
@@ -40,7 +40,7 @@ class AuthRepository:
 
     async def get_user_by_id(self,id:UUID)-> User|None:
 
-        result= await self.db.execute(select(User).where(User.id==id))
+        result= await self.db.execute(select(User).where(User.id==id).options(selectinload(User.profile)))
         return result.scalar_one_or_none()
 
     async def get_profile_by_username(self,username:str):
@@ -52,6 +52,21 @@ class AuthRepository:
         result= await self.db.execute(query)
 
         return result.scalar_one_or_none()
+
+
+
+    async def login_with_google(self,param:LoginWithGoogleParam):
+      
+           query= select(User).where(User.email==param.email).options(selectinload(User.profile))
+           result = await self.db.execute(query)
+           user= result.scalar_one_or_none()
+           if user!=None:
+            return user
+           user = await self.create_user(email=param.email)
+           authToken= create_access_token(user_id=user.id)
+           return (user,authToken)
+
+
 
     async def generate_otp(self,param:GenerateOtpRequest):
 
@@ -121,6 +136,13 @@ class AuthRepository:
         except Exception as e:
             raise AppException(status_code=500, message=f'Failed to verify otp {str(e)}')
 
+    async def get_user_by_email(self,email:str)-> User|None:
+        result=await self.db.execute(select(User).where(User.email==email))
+
+        user= result.scalar_one_or_none()
+        if user is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='No user exist with phonenumber')
+    
 
 
     async def get_user_by_phone(self,phoneNumber:str)-> User|None:
@@ -142,8 +164,8 @@ class AuthRepository:
         result= await self.db.execute(select(Profile).where(Profile.id==id))
         return result.scalar_one_or_none()
 
-    async def create_user(self,phoneNumber:str):
-        user=User(phoneNumber=phoneNumber)
+    async def create_user(self,email:str):
+        user=User(email=email)
         self.db.add(user)
         await self.db.commit()
         await self.db.refresh(user)
@@ -152,12 +174,13 @@ class AuthRepository:
 
     async def create_profile(self,param:CreateProfileParam,userId:UUID)-> Profile:
         try:
-            user = await self.get_user_by_id(id=userId)
+            result  = await self.db.execute(select(User).where(User.id==userId).options(selectinload(User.profile)))
+            user = result.scalar_one_or_none()
 
             if user is None:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="No user exist with id")
         
-            preProfile=await self.get_profile_by_user_id(userId=userId)
+            preProfile= user.profile
 
             if preProfile !=None:
                 raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail="Profile already exist for user")
@@ -166,26 +189,23 @@ class AuthRepository:
             profile= Profile(
                 userId=userId,
                    ownerName=param.ownerName,
+                   phoneNumber=param.phoneNumber,
                  companyName=param.companyName,
                 logoImageUrl=param.logoImageUrl,
                 aboutCompany=param.aboutCompany,
                 companyWebsite=param.companyWebsite,
                 instagramProfile=param.instagramProfile
-
-            
-
             )
 
-
+            user.profile=profile
 
             self.db.add(profile)
             await self.db.commit()
 
-            
+            await self.db.refresh(user)
             await self.db.refresh(profile)
-             
-
-            return profile,user
+ 
+            return user
 
         except HTTPException :
             raise
@@ -198,26 +218,39 @@ class AuthRepository:
 
 
     async def update_profile(self,param:UpdateProfileParam,userId:UUID)-> Profile:
-   
-        profile=await self.get_profile_by_id(id=UUID(param.id))
-        
 
-        if profile is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No Profile exists with id")
-        
-        profile.ownerName=param.ownerName
-        profile.logoImageUrl=param.logoImageUrl
-        profile.companyName=param.companyName
-        profile.aboutCompany=param.aboutCompany
-        profile.companyWebsite=param.companyWebsite
-         
-        
-        await self.db.commit()
-        await self.db.refresh(profile)
+        try:
 
-        user=await self.get_user_by_id(id=userId)
+            result  = await self.db.execute(select(User).where(User.id==userId).options(selectinload(User.profile)))
+            user = result.scalar_one_or_none()
 
-        return profile,user
+            if user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail="No user exist with id")
+            
+
+            profile= user.profile
+
+            if profile is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="No Profile exists with id")
+            
+            profile.phoneNumber=param.phoneNumber
+            profile.ownerName=param.ownerName
+            profile.logoImageUrl=param.logoImageUrl
+            profile.companyName=param.companyName
+            profile.aboutCompany=param.aboutCompany
+            profile.companyWebsite=param.companyWebsite
+    
+            await self.db.commit()
+            await self.db.refresh(profile)
+            await self.db.refresh(user)
+
+            return user
+
+        except HTTPException:
+            raise
+        except Exception as e:
+             await self.db.rollback()
+             raise HTTPException( status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Internal Server error {str(e)}" )
     
 
     async def get_user_with_cars(self,userId:UUID):
