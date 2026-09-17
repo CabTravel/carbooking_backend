@@ -1,7 +1,9 @@
 
 
 from fastapi import APIRouter,Depends,HTTPException,Depends
-from app.modules.authentication.schemas import GenerateOtpRequest,VerifyOtpParam,CreateProfileParam,UpdateProfileParam
+from app.modules.authentication.schemas import ( GenerateOtpRequest,VerifyOtpParam,
+                                                CreateProfileParam,UpdateProfileParam,
+                                                LoginWithGoogleParam,LoginWithGoogleOut)
 
 from app.core.server_response import SuccessResponse,failureFromException,FailureResponse
 from uuid import UUID
@@ -11,6 +13,15 @@ from app.core.security import get_current_user_id
 
 
 router=APIRouter(prefix='/auth')
+
+
+@router.post('/loginwith-google',response_model=SuccessResponse)
+async def login_with_google(request:LoginWithGoogleParam,service:AuthService=Depends()):
+    result= await service.login_with_google(param=request)
+
+    return SuccessResponse(data=result)
+
+
 
 @router.post('/generateOtp',response_model=SuccessResponse)
 async def generateOtp(request:GenerateOtpRequest,service:AuthService=Depends()):

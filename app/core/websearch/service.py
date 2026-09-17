@@ -25,9 +25,9 @@ class WebService:
              )
     for car in result] )
 
-    async def get_one_profile(self,userId=UUID):
+    async def get_one_profile(self,username=str):
 
-        result=await self.repository.get_one_profile(userId=userId)
+        result=await self.repository.get_one_profile(username=username)
 
         return OneCompanyProfile(
             user= OneFullUser.model_validate(result),

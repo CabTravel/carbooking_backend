@@ -2,14 +2,15 @@ from pydantic import BaseModel,Field,ConfigDict
 
 from app.modules.authentication. models import User,Profile
 from uuid import UUID
+from pydantic import EmailStr
 
 
 class OneFullUser(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
     id: UUID
-    phoneNumber: str
-
+    email:str
+    phoneNumber: str|None=None
     ownerName: str | None = None
     companyName: str | None = None
     logoImageUrl: str | None = None
@@ -32,8 +33,9 @@ class OneFullUser(BaseModel):
 
             return {
                 "id": value.id,
-                "phoneNumber": value.phoneNumber,
+                "email": value.email,
 
+                "phoneNumber":profile.phoneNumber if profile else None,
                 "ownerName": profile.ownerName if profile else None,
                 "companyName": profile.companyName if profile else None,
                 "logoImageUrl": profile.logoImageUrl if profile else None,
@@ -79,18 +81,15 @@ class VerifyOtpParam(BaseModel):
     otp:str=Field(min_length=4,max_length=4)
 
 
-
-
-
 class VerifyOtpOut(BaseModel):
     user:UserOut
     profile:ProfileOut|None =None
     authToken:str
 
 
-
 class CreateProfileParam(BaseModel):
     ownerName:str
+    phoneNumber:str
     companyName:str
     logoImageUrl:str|None
     aboutCompany:str|None
@@ -98,8 +97,8 @@ class CreateProfileParam(BaseModel):
     instagramProfile:str|None
 
 class UpdateProfileParam(BaseModel):
-    id:str
     ownerName:str
+    phoneNumber:str
     companyName:str
     logoImageUrl:str|None
     aboutCompany:str|None
@@ -108,8 +107,18 @@ class UpdateProfileParam(BaseModel):
 
 
 class OneProfileOut(BaseModel):
-    user:UserOut
-    profile:ProfileOut
+    user:OneFullUser
+
+
+class LoginWithGoogleParam(BaseModel):
+    email:EmailStr
+
+class LoginWithGoogleOut(BaseModel):
+    user:OneFullUser
+    authToken:str
+
+
+
 
 
 

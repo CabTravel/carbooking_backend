@@ -59,3 +59,17 @@ def calculation_task(
         "user_id": user_id,
         "result": result,
     }
+
+@celery_app.task(
+    name="payment.process_webhook"
+)
+def process_payment_webhook(
+    eventId: str
+):
+
+    asyncio.run(
+        process_payment_webhook_async(eventId)
+    )
+
+
+
