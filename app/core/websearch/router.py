@@ -21,9 +21,9 @@ async def get_search_cars(
 
     return SuccessResponse(data=result)
 
-@webrouter.get('/profile/{userId}',response_model=SuccessResponse)
-async def get_one_profile(userId:str, service:WebService=Depends()):
-    result= await service.get_one_profile(userId=UUID(userId))
+@webrouter.get('/profile/{username}',response_model=SuccessResponse)
+async def get_one_profile(username:str, service:WebService=Depends()):
+    result= await service.get_one_profile(username=username)
 
     return SuccessResponse(data=result)
     

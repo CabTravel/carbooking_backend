@@ -18,8 +18,8 @@ class WebRepository:
         cars=await self.carRepo.search_cars(param=param)
         return cars
 
-    async def get_one_profile(self,userId:UUID):
-        user=await self.userRepo.get_user_with_cars(userId=userId)
+    async def get_one_profile(self,username:str):
+        user=await self.userRepo.get
         return user
 
 
